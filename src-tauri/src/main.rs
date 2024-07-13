@@ -3,6 +3,8 @@
     windows_subsystem = "windows"
 )]
 
+mod model;
+
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[tauri::command]
@@ -17,7 +19,10 @@ fn on_button_clicked() -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![on_button_clicked])
+        .invoke_handler(tauri::generate_handler![
+            on_button_clicked,
+            model::open_zip_file,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
