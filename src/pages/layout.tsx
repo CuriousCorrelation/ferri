@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: ReactElement }) {
   return (
     <main
       className={cn(
-        "min-h-screen min-w-screen font-sans antialiased",
+        "min-h-screen min-w-screen font-sans antialiased p-2",
         fontSans.variable,
       )}
     >

@@ -23,7 +23,6 @@ pub(crate) struct ZipFileData {
 #[command]
 pub(crate) fn open_zip_file(path: String, password: Option<String>) -> FerriResult<ZipFileData> {
     let path = Path::new(&path);
-
     let file = File::open(path)?;
 
     let mut archive = ZipArchive::new(file)?;

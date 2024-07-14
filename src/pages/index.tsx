@@ -117,7 +117,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Card>
+    <Card className="w-full h-full border">
       <CardHeader>
         <CardTitle className="flex items-center justify-start gap-2 text-2xl">
           <ArchiveIcon className="h-8 w-8 shrink-0" />
