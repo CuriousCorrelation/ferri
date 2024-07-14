@@ -24,7 +24,7 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree }) => {
           const accordionItemValue = `item-${depth}-${index}`;
 
           return isEmpty(obj) ? (
-            <li key={key} className="flex">
+            <li key={key} className="flex font-bold">
               <FileIcon className="h-4 w-4 mr-2 shrink-0" />
               {key}
             </li>

@@ -117,11 +117,11 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Card className="w-full h-full border">
+    <Card className="w-full h-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-start gap-2 text-2xl">
           <ArchiveIcon className="h-8 w-8 shrink-0" />
-          Zip file previewer
+          Zip File Previewer
         </CardTitle>
         {state.recentFiles.length > 0 ? (
           <RecentFiles

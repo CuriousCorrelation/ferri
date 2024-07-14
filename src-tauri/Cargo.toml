@@ -1,7 +1,7 @@
 [package]
 name = "ferri"
 version = "0.1.0"
-description = "A zip file viewer"
+description = "A Zip File Previewer"
 authors = ["CuriousCorrelation"]
 license = "MIT"
 repository = "https://github.com/CuriousCorrelation/ferri"
