@@ -1,17 +1,38 @@
 import React, { useState } from 'react';
-
 import { invoke } from '@tauri-apps/api/tauri';
 import { open } from "@tauri-apps/api/dialog";
-
 import FileTree from '@/components/file-tree';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { PasswordPrompt } from '@/components/password-prompt';
+import RecentFiles from '@/components/recent-files';
+import { Metadata } from '@/types';
+import MetadataDisplay from '@/components/metadata-display';
+import ErrorMessage from '@/components/error-message';
+import { ArchiveIcon } from '@radix-ui/react-icons';
+
+interface FileData {
+    tree: any;
+    metadata: Metadata;
+}
 
 const Home: React.FC = () => {
-    const [zipFile, setZipFile] = useState<string | null>(null);
-    const [fileTree, setFileTree] = useState<any>(null);
-    const [metadata, setMetadata] = useState<any>(null);
-    const [recentFiles, setRecentFiles] = useState<string[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [state, setState] = useState({
+        requiresPassword: false,
+        zipFile: null as string | null,
+        fileTree: null,
+        metadata: null as Metadata | null,
+        recentFiles: [] as string[],
+        error: null as string | null,
+    });
 
+    // Function to choose a ZIP file
     const chooseFile = async () => {
         const selected = await open({ filters: [{ name: "ZIP Files", extensions: ["zip"] }] });
         if (selected) {
@@ -19,63 +40,82 @@ const Home: React.FC = () => {
         }
     };
 
+    // Function to handle errors based on the thrown error message
+    const handleErrors = (err: any) => {
+        if (err.includes('Password required')) {
+            setState(prevState => ({ ...prevState, requiresPassword: true, error: 'Password is required to open this ZIP file.' }));
+        } else if (err.includes('Invalid password')) {
+            setState(prevState => ({ ...prevState, error: 'The password you entered is incorrect.' }));
+        } else {
+            setState(prevState => ({ ...prevState, error: `Failed to open ZIP file: ${err}` }));
+        }
+    };
+
+    // Function to update recent files
+    const updateRecentFiles = (filePath: string) => {
+        setState(prevState => ({
+            ...prevState,
+            recentFiles: [filePath, ...prevState.recentFiles.filter(file => file !== filePath).slice(0, 4)],
+        }));
+    };
+
+    // Function to open a ZIP file
     const openZipFile = async (filePath: string, password: string | null = null) => {
+        if (!filePath) {
+            setState(prevState => ({ ...prevState, error: 'File path is invalid.' }));
+            return;
+        }
+
         try {
-            const fileData: any = await invoke('open_zip_file', { path: filePath, password });
-            setZipFile(filePath);
-            setFileTree(fileData.tree);
-            setMetadata(fileData.metadata);
-            setRecentFiles((prev) => [filePath, ...prev.slice(0, 4)]);
-            setError(null);
+            updateRecentFiles(filePath);
+            setState(prevState => ({ ...prevState, zipFile: filePath }));
+
+            const fileData = await invoke<FileData>('open_zip_file', { path: filePath, password });
+
+            setState(prevState => ({
+                ...prevState,
+                fileTree: fileData.tree,
+                metadata: fileData.metadata,
+                error: null,
+                requiresPassword: false,
+            }));
         } catch (err: any) {
-            if (err.includes('Password required')) {
-                const userPassword = prompt('Enter password for the ZIP file:');
-                if (userPassword) {
-                    openZipFile(filePath, userPassword);
-                } else {
-                    setError('Password is required to open this ZIP file.');
-                }
-            } else if (err.includes('Invalid password')) {
-                setError('The password you entered is incorrect.');
-            } else {
-                setError(`Failed to open ZIP file: ${err}`);
-            }
+            handleErrors(err);
+        }
+    };
+
+    // Function to handle setting password
+    const handleSetPassword = (password: string) => {
+        if (state.zipFile) {
+            openZipFile(state.zipFile, password);
+        } else {
+            setState(prevState => ({ ...prevState, error: 'No ZIP file selected.' }));
         }
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl">ZIP File Viewer</h1>
-                <ul className="list-disc pl-4">
-                    {recentFiles.slice(0, 5).map((file: string, index: number) => (
-                        <li key={index} onClick={() => openZipFile(file)}>
-                            {file}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            <div className="mb-4">
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                    onClick={chooseFile}
-                >
-                    Choose a ZIP file
-                </button>
-            </div>
-            {error && <div className="mb-4 p-2 bg-red-100 text-red-800 rounded shadow">{error}</div>}
-            {zipFile && (
-                <>
-                    <div className="mb-4 p-2 bg-gray-100 rounded shadow">
-                        <h2 className="text-xl">File Metadata</h2>
-                        <p>Name: {metadata.name}</p>
-                        <p>Size: {metadata.size}</p>
-                        <p>Compressed Size: {metadata.compressed_size}</p>
-                    </div>
-                    <FileTree fileTree={fileTree} />
-                </>
-            )}
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center justify-start gap-2 text-2xl"><ArchiveIcon className='h-8 w-8 shrink-0' />Zip file previewer</CardTitle>
+                {state.recentFiles.length > 0 ? <RecentFiles recentFiles={state.recentFiles} openZipFile={openZipFile} /> : <span>No recent files</span>}
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                {state.requiresPassword ?
+                    <PasswordPrompt onSetPassword={handleSetPassword} />
+                    :
+                    <Button onClick={chooseFile}>Choose a ZIP file</Button>
+                }
+                <div className="grid gap-2">
+                    {state.error && <ErrorMessage error={state.error} />}
+                    {state.zipFile && state.metadata && (
+                        <>
+                            <MetadataDisplay metadata={state.metadata} />
+                            <FileTree fileTree={state.fileTree} />
+                        </>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 
