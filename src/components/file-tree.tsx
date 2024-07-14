@@ -1,38 +1,30 @@
-import {
-  CornerBottomLeftIcon,
-  DividerHorizontalIcon,
-} from "@radix-ui/react-icons";
 import React from "react";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 interface FileTreeProps {
   fileTree: JSON | null;
 }
 
 const FileTree: React.FC<FileTreeProps> = ({ fileTree }) => {
-  const renderTree = (node: any, depth = 0, isLast = true) => {
+  const renderTree = (node: any, depth = 0, margin = 0) => {
     const keys = Object.keys(node);
 
     return (
-      <ul className="list-none" style={{ marginLeft: depth * 20 }}>
+      <ul className="list-none font-mono" style={{ marginLeft: margin * 2 }}>
         {keys.map((key, index, array) => {
           const isLastChild = index === array.length - 1;
+          const obj = node[key];
 
           return (
             <li key={key}>
               <div className="flex items-center">
                 {depth > 0 && (
-                  <span className="mr-1">
-                    {isLast ? (
-                      <CornerBottomLeftIcon />
-                    ) : (
-                      <DividerHorizontalIcon />
-                    )}
-                  </span>
+                  <span >{isLastChild ? "└──" : "├──"}</span>
                 )}
                 <span>{key}</span>
               </div>
-              {typeof node[key] === "object"
-                ? renderTree(node[key], depth + 1, isLastChild)
+              {typeof obj === "object"
+                ? renderTree(node[key], depth + 1, margin + key.length)
                 : null}
             </li>
           );
@@ -41,7 +33,13 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree }) => {
     );
   };
 
-  return <div>{renderTree(fileTree)}</div>;
+  return (
+    <ScrollArea>
+      {renderTree(fileTree)}
+      <ScrollBar orientation="horizontal" />
+      <ScrollBar orientation="vertical" />
+    </ScrollArea>
+  );
 };
 
 export default FileTree;
