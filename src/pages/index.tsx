@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -26,7 +25,7 @@ const Home: React.FC = () => {
     const [state, setState] = useState({
         requiresPassword: false,
         zipFile: null as string | null,
-        fileTree: null,
+        fileTree: null as JSON | null,
         metadata: null as Metadata | null,
         recentFiles: [] as string[],
         error: null as string | null,
