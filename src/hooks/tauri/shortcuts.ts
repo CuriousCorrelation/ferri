@@ -3,8 +3,8 @@ import {
   isRegistered,
   register,
   unregister,
-} from "@tauri-apps/api/globalShortcut"
-import { useEffect } from "react"
+} from "@tauri-apps/api/globalShortcut";
+import { useEffect } from "react";
 
 /**
  * A React hook to register global shortcuts using Tauri's globalShortcut API.
@@ -19,22 +19,22 @@ export const useGlobalShortcut = (
   shortcutHandler: ShortcutHandler,
 ) => {
   useEffect(() => {
-    let ignore = false
+    let ignore = false;
 
     async function registerShortcut() {
-      const isShortcutRegistered = await isRegistered(shortcut)
+      const isShortcutRegistered = await isRegistered(shortcut);
       if (!ignore && !isShortcutRegistered) {
-        await register(shortcut, shortcutHandler)
+        await register(shortcut, shortcutHandler);
       }
     }
 
     void registerShortcut().catch((err: unknown) => {
-      console.error(`Failed to register global shortcut '${shortcut}'`, err)
-    })
+      console.error(`Failed to register global shortcut '${shortcut}'`, err);
+    });
 
     return () => {
-      ignore = true
-      void unregister(shortcut)
-    }
-  }, [shortcut, shortcutHandler])
-}
+      ignore = true;
+      void unregister(shortcut);
+    };
+  }, [shortcut, shortcutHandler]);
+};

@@ -1,10 +1,13 @@
 # Ferri (Ferris & Ferry)
+
 Taking you over the files and directories in your system!
 
 ## A File Explorer Written In Rust With Tauri
+
 TODO!
 
 ## Development
+
 Reproducible development environment with devenv and Nix
 
 Simply run `devenv shell` to activates your developer environment and `devenv up` to start all the processes.

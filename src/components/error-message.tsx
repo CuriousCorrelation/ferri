@@ -1,9 +1,9 @@
 interface ErrorMessageProps {
-    error: string;
+  error: string;
 }
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ error }) => (
-    <div className="mb-4 p-2 bg-red-100 text-red-800">{error}</div>
+  <div className="mb-4 p-2 bg-red-100 text-red-800">{error}</div>
 );
 
 export default ErrorMessage;

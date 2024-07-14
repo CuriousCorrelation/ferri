@@ -6,6 +6,6 @@ const nextConfig = {
     unoptimized: true,
   },
   output: "export",
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
