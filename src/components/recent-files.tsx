@@ -14,7 +14,11 @@ const RecentFiles: React.FC<RecentFilesProps> = ({
     <ul className="list-disc pl-4">
       {recentFiles.slice(0, 5).map((file, index) => (
         <li key={index}>
-          <Button variant="link" onClick={() => openZipFile(file)}>
+          <Button
+            variant="link"
+            className="p-0"
+            onClick={() => openZipFile(file)}
+          >
             {file}
           </Button>
         </li>
