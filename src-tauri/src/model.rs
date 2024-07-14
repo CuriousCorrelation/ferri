@@ -5,6 +5,8 @@ use serde_json::Value;
 use tauri::command;
 use zip::ZipArchive;
 
+use crate::error::FerriResult;
+
 #[derive(Serialize)]
 pub(crate) struct ZipMetadata {
     name: String,
@@ -19,13 +21,12 @@ pub(crate) struct ZipFileData {
 }
 
 #[command]
-pub(crate) fn open_zip_file(path: String, password: Option<String>) -> Result<ZipFileData, String> {
+pub(crate) fn open_zip_file(path: String, password: Option<String>) -> FerriResult<ZipFileData> {
     let path = Path::new(&path);
 
-    let file = File::open(path).map_err(|e| format!("Failed to open file: {}", e))?;
+    let file = File::open(path)?;
 
-    let mut archive =
-        ZipArchive::new(file).map_err(|e| format!("Failed to read ZIP archive: {}", e))?;
+    let mut archive = ZipArchive::new(file)?;
 
     let mut tree = serde_json::json!({});
 
@@ -33,14 +34,11 @@ pub(crate) fn open_zip_file(path: String, password: Option<String>) -> Result<Zi
     let files = archive.len();
     let name = path.file_name().unwrap().to_str().unwrap().to_string();
 
-    for i in 0..archive.len() {
+    for i in 0..files {
         let file = if let Some(ref password) = password {
-            archive
-                .by_index_decrypt(i, password.as_bytes())
-                .map_err(|e| e.to_string())?
-                .map_err(|e| e.to_string())?
+            archive.by_index_decrypt(i, password.as_bytes())??
         } else {
-            archive.by_index(i).map_err(|e| e.to_string())?
+            archive.by_index(i)?
         };
 
         compressed_size += file.compressed_size();

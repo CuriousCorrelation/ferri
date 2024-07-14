@@ -3,9 +3,12 @@
     windows_subsystem = "windows"
 )]
 
-mod model;
+pub(crate) mod model;
+pub(crate) mod error;
 
 use std::time::{SystemTime, UNIX_EPOCH};
+
+use tauri::Manager;
 
 #[tauri::command]
 fn on_button_clicked() -> String {
@@ -19,6 +22,15 @@ fn on_button_clicked() -> String {
 
 fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(debug_assertions)]
+            {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+                window.close_devtools();
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             on_button_clicked,
             model::open_zip_file,

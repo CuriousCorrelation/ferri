@@ -1,11 +1,11 @@
 [package]
-name = "app"
+name = "ferri"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
-default-run = "app"
+description = "A zip file viewer"
+authors = ["CuriousCorrelation"]
+license = "MIT"
+repository = "https://github.com/CuriousCorrelation/ferri"
+default-run = "ferri"
 edition = "2021"
 rust-version = "1.66"
 
@@ -19,6 +19,7 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.6", features = ["api-all"] }
 zip = "0.6.6"
+thiserror = "1.0.62"
 
 [features]
 # by default Tauri runs in production mode
