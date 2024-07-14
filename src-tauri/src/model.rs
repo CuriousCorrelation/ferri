@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path};
+use std::{fs::File, ops::Not, path::Path};
 
 use serde::Serialize;
 use serde_json::Value;
@@ -43,7 +43,11 @@ pub(crate) fn open_zip_file(path: String, password: Option<String>) -> FerriResu
 
         compressed_size += file.compressed_size();
 
-        let parts: Vec<&str> = file.name().split('/').collect();
+        let parts = file
+            .name()
+            .split('/')
+            .filter(|s| s.is_empty().not())
+            .collect::<Vec<_>>();
 
         let mut current = &mut tree;
 
