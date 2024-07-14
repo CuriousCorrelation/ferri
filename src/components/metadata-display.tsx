@@ -5,7 +5,7 @@ interface MetadataDisplayProps {
 }
 
 const MetadataDisplay: React.FC<MetadataDisplayProps> = ({ metadata }) => (
-    <div className="mb-4 p-2 bg-gray-100 shadow">
+    <div className="mb-4 p-2 bg-gray-100">
         <h2 className="text-xl">File Metadata</h2>
         <p>Name: {metadata.name}</p>
         <p>Files: {metadata.files}</p>
