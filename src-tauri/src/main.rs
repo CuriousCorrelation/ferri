@@ -3,8 +3,9 @@
     windows_subsystem = "windows"
 )]
 
-pub(crate) mod model;
 pub(crate) mod error;
+pub(crate) mod interop;
+pub(crate) mod model;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -33,7 +34,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             on_button_clicked,
-            model::open_zip_file,
+            interop::read_zip_file_metadata
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
