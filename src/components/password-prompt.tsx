@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 export function PasswordPrompt({
   onSetPassword,
 }: {
-  onSetPassword: (password: string) => void;
+  onSetPassword: (password: string) => Promise<void>;
 }) {
   const form = useForm({
     defaultValues: {
@@ -23,13 +23,18 @@ export function PasswordPrompt({
     },
   });
 
-  function onSubmit(data: { password: string }) {
-    onSetPassword(data.password);
-  }
+  const onSubmit = async (data: { password: string }) => {
+    await onSetPassword(data.password);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+      <form
+        onSubmit={() => {
+          form.handleSubmit(onSubmit);
+        }}
+        className="w-2/3 space-y-6"
+      >
         <FormField
           control={form.control}
           name="password"

@@ -11,7 +11,6 @@ import { useFileHandler } from "@/hooks/file-handler";
 import { AppAction, AppState } from "@/types";
 import { readRecentFiles } from "@/lib/interop";
 
-
 const initialAppState: AppState = {
   requiresPassword: false,
   zipFile: null,
@@ -41,26 +40,33 @@ const Home: React.FC = () => {
   const [appState, dispatch] = useReducer(reducer, initialAppState);
   const { chooseFile, openZipFile } = useFileHandler(dispatch);
 
-    useEffect(() => {
-    async function fetchRecentFiles() {
+  useEffect(() => {
+    const fetchRecentFiles = async () => {
       try {
-        const files = await readRecentFiles() ?? [];
-        dispatch({ type: "SET_RECENT_FILES", payload: files });
+        const files = await readRecentFiles();
+        dispatch({ type: "SET_RECENT_FILES", payload: files ?? [] });
       } catch (error) {
         dispatch({ type: "SET_RECENT_FILES", payload: [] });
       }
-    }
+    };
 
-    fetchRecentFiles();
-  }, []); // Empty dependency, run once
+    void fetchRecentFiles();
+  }, []);
 
-  const handleSetPassword = (password: string) => {
+  const handleSetPassword = async (password: string) => {
     if (appState.zipFile) {
-      openZipFile(appState.zipFile, password);
+      await openZipFile(appState.zipFile, password);
     } else {
       dispatch({ type: "SET_ERROR", payload: "No ZIP file selected." });
     }
   };
+
+  const handleClick = () => {
+    chooseFile().catch((error: unknown) => {
+      console.error("Error opening explorer prompt:", error);
+    });
+  };
+
 
   return (
     <Card className="w-full h-full">
@@ -82,7 +88,13 @@ const Home: React.FC = () => {
         {appState.requiresPassword ? (
           <PasswordPrompt onSetPassword={handleSetPassword} />
         ) : (
-          <Button onClick={chooseFile}>Choose a ZIP file</Button>
+          <Button
+            onClick={() => {
+              handleClick();
+            }}
+          >
+            Choose a ZIP file
+          </Button>
         )}
         <div className="grid gap-2">
           {appState.error && <ErrorMessage error={appState.error} />}
