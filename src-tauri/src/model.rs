@@ -4,8 +4,8 @@ use serde_json::Value;
 #[derive(Serialize)]
 pub(crate) struct ZipArchiveMetadata {
     name: String,
-    archive_size: u64,
-    archive_compressed_size: u64,
+    archive_size: String,
+    archive_compressed_size: String,
     file_metadata: Vec<ZipFileMetadata>,
     tree: Value,
 }
@@ -13,8 +13,8 @@ pub(crate) struct ZipArchiveMetadata {
 impl ZipArchiveMetadata {
     pub(crate) fn new(
         name: String,
-        archive_size: u64,
-        archive_compressed_size: u64,
+        archive_size: String,
+        archive_compressed_size: String,
         file_metadata: Vec<ZipFileMetadata>,
         tree: Value,
     ) -> Self {
@@ -31,15 +31,15 @@ impl ZipArchiveMetadata {
 #[derive(Serialize)]
 pub(crate) struct ZipFileMetadata {
     name: String,
-    size: u64,
-    compressed_size: u64,
+    size: String,
+    compressed_size: String,
 }
 
 impl ZipFileMetadata {
     pub(crate) fn new(
         name: String,
-        size: u64,
-        compressed_size: u64,
+        size: String,
+        compressed_size: String,
     ) -> Self {
         Self {
             name,

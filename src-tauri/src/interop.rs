@@ -1,5 +1,6 @@
 use std::{fs::File, ops::Not, path::Path};
 
+use human_bytes::human_bytes;
 use zip::ZipArchive;
 
 use crate::{
@@ -64,16 +65,16 @@ pub(crate) fn read_zip_file_metadata(
 
             Ok::<_, FerriError>(ZipFileMetadata::new(
                 name,
-                size,
-                compressed_size,
+                human_bytes(size as f64),
+                human_bytes(compressed_size as f64),
             ))
         })
         .collect::<Result<Vec<_>, _>>()?;
 
     Ok(ZipArchiveMetadata::new(
         name,
-        archive_size,
-        archive_compressed_size,
+        human_bytes(archive_size as f64),
+        human_bytes(archive_compressed_size as f64),
         file_metadata,
         tree,
     ))

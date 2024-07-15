@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "./ui/accordion";
 import { isEmpty } from "@/lib/utils";
-import { FileIcon, StackIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, FileIcon, StackIcon } from "@radix-ui/react-icons";
 import { ZipFileMetadata } from "@/types";
 
 interface FileTreeProps {
@@ -39,7 +39,8 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree, fileMetadata }) => {
               {metadata && (
                 <div className="flex text-xs font-thin gap-2">
                   <p>Size: {metadata.size}</p>
-                  <p>Compressed: {metadata.compressed_size}</p>
+                  <ArrowRightIcon />
+                  <p>{metadata.compressed_size}</p>
                 </div>
               )}
             </li>
