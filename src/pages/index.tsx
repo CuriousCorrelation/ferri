@@ -4,28 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordPrompt } from "@/components/password-prompt";
 import RecentFiles from "@/components/recent-files";
-import { ZipArchiveMetadata } from "@/types";
 import MetadataDisplay from "@/components/metadata-display";
 import ErrorMessage from "@/components/error-message";
 import { ArchiveIcon } from "@radix-ui/react-icons";
 import { useFileHandler } from "@/hooks/file-handler";
+import { AppAction, AppState } from "@/types";
 
-interface State {
-  requiresPassword: boolean;
-  zipFile: string | null;
-  metadata: ZipArchiveMetadata | null;
-  recentFiles: string[];
-  error: string | null;
-}
-
-type Action =
-  | { type: "SET_REQUIRES_PASSWORD"; payload: boolean }
-  | { type: "SET_ZIP_FILE"; payload: string | null }
-  | { type: "SET_METADATA"; payload: ZipArchiveMetadata | null }
-  | { type: "SET_RECENT_FILES"; payload: string[] }
-  | { type: "SET_ERROR"; payload: string | null };
-
-const initialState: State = {
+const initialAppState: AppState = {
   requiresPassword: false,
   zipFile: null,
   metadata: null,
@@ -33,30 +18,30 @@ const initialState: State = {
   error: null,
 };
 
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
+const reducer = (appState: AppState, appAction: AppAction): AppState => {
+  switch (appAction.type) {
     case "SET_REQUIRES_PASSWORD":
-      return { ...state, requiresPassword: action.payload };
+      return { ...appState, requiresPassword: appAction.payload };
     case "SET_ZIP_FILE":
-      return { ...state, zipFile: action.payload };
+      return { ...appState, zipFile: appAction.payload };
     case "SET_METADATA":
-      return { ...state, metadata: action.payload };
+      return { ...appState, metadata: appAction.payload };
     case "SET_RECENT_FILES":
-      return { ...state, recentFiles: action.payload };
+      return { ...appState, recentFiles: appAction.payload };
     case "SET_ERROR":
-      return { ...state, error: action.payload };
+      return { ...appState, error: appAction.payload };
     default:
-      return state;
+      return appState;
   }
 };
 
 const Home: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { chooseFile, openZipFile } = useFileHandler(state, dispatch);
+  const [appState, dispatch] = useReducer(reducer, initialAppState);
+  const { chooseFile, openZipFile } = useFileHandler(appState, dispatch);
 
   const handleSetPassword = (password: string) => {
-    if (state.zipFile) {
-      openZipFile(state.zipFile, password);
+    if (appState.zipFile) {
+      openZipFile(appState.zipFile, password);
     } else {
       dispatch({ type: "SET_ERROR", payload: "No ZIP file selected." });
     }
@@ -69,9 +54,9 @@ const Home: React.FC = () => {
           <ArchiveIcon className="h-8 w-8 shrink-0" />
           Zip File Previewer
         </CardTitle>
-        {state.recentFiles.length > 0 ? (
+        {appState.recentFiles.length > 0 ? (
           <RecentFiles
-            recentFiles={state.recentFiles}
+            recentFiles={appState.recentFiles}
             openZipFile={openZipFile}
           />
         ) : (
@@ -79,19 +64,19 @@ const Home: React.FC = () => {
         )}
       </CardHeader>
       <CardContent className="grid gap-4">
-        {state.requiresPassword ? (
+        {appState.requiresPassword ? (
           <PasswordPrompt onSetPassword={handleSetPassword} />
         ) : (
           <Button onClick={chooseFile}>Choose a ZIP file</Button>
         )}
         <div className="grid gap-2">
-          {state.error && <ErrorMessage error={state.error} />}
-          {state.zipFile && state.metadata && (
+          {appState.error && <ErrorMessage error={appState.error} />}
+          {appState.zipFile && appState.metadata && (
             <>
-              <MetadataDisplay metadata={state.metadata} />
+              <MetadataDisplay metadata={appState.metadata} />
               <FileTree
-                fileTree={state.metadata.tree}
-                fileMetadata={state.metadata.file_metadata}
+                fileTree={appState.metadata.tree}
+                fileMetadata={appState.metadata.file_metadata}
               />
             </>
           )}
