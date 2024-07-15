@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
 import FileTree from "@/components/file-tree";
@@ -6,37 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordPrompt } from "@/components/password-prompt";
 import RecentFiles from "@/components/recent-files";
-import { Metadata } from "@/types";
+import { ZipArchiveMetadata } from "@/types";
 import MetadataDisplay from "@/components/metadata-display";
 import ErrorMessage from "@/components/error-message";
 import { ArchiveIcon } from "@radix-ui/react-icons";
+import { readZipFileMetadata } from "@/lib/interop";
 
-interface FileData {
-  tree: any;
-  metadata: Metadata;
-}
-
-type State = {
+interface State {
   requiresPassword: boolean;
   zipFile: string | null;
-  fileTree: JSON | null;
-  metadata: Metadata | null;
+  metadata: ZipArchiveMetadata | null;
   recentFiles: string[];
   error: string | null;
-};
+}
 
 type Action =
   | { type: "SET_REQUIRES_PASSWORD"; payload: boolean }
   | { type: "SET_ZIP_FILE"; payload: string | null }
-  | { type: "SET_FILE_TREE"; payload: JSON | null }
-  | { type: "SET_METADATA"; payload: Metadata | null }
+  | { type: "SET_METADATA"; payload: ZipArchiveMetadata | null }
   | { type: "SET_RECENT_FILES"; payload: string[] }
   | { type: "SET_ERROR"; payload: string | null };
 
 const initialState: State = {
   requiresPassword: false,
   zipFile: null,
-  fileTree: null,
   metadata: null,
   recentFiles: [],
   error: null,
@@ -48,8 +41,6 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, requiresPassword: action.payload };
     case "SET_ZIP_FILE":
       return { ...state, zipFile: action.payload };
-    case "SET_FILE_TREE":
-      return { ...state, fileTree: action.payload };
     case "SET_METADATA":
       return { ...state, metadata: action.payload };
     case "SET_RECENT_FILES":
@@ -61,74 +52,87 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+const useFileHandler = (state: State, dispatch: React.Dispatch<Action>) => {
+  const chooseFile = useCallback(async () => {
+    try {
+      const selected = await open({
+        filters: [{ name: "ZIP Files", extensions: ["zip"] }],
+      });
+      if (selected) {
+        openZipFile(selected as string);
+      }
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", payload: "Error selecting file." });
+    }
+  }, [dispatch]);
+
+  const openZipFile = useCallback(
+    async (filePath: string, password: string | null = null) => {
+      if (!filePath) {
+        dispatch({ type: "SET_ERROR", payload: "File path is invalid." });
+        return;
+      }
+
+      try {
+        dispatch({ type: "SET_ZIP_FILE", payload: filePath });
+        const metadata = await readZipFileMetadata(filePath, password);
+
+        dispatch({ type: "SET_METADATA", payload: metadata });
+        dispatch({ type: "SET_ERROR", payload: null });
+        dispatch({ type: "SET_REQUIRES_PASSWORD", payload: false });
+
+        updateRecentFiles(filePath);
+      } catch (err: any) {
+        handleErrors(err);
+      }
+    },
+    [dispatch],
+  );
+
+  const handleErrors = useCallback(
+    (err: any) => {
+      if (err.includes("Password required")) {
+        dispatch({ type: "SET_REQUIRES_PASSWORD", payload: true });
+        dispatch({
+          type: "SET_ERROR",
+          payload: "Password is required to open this ZIP file.",
+        });
+      } else if (err.includes("Invalid password")) {
+        dispatch({
+          type: "SET_ERROR",
+          payload: "The password you entered is incorrect.",
+        });
+      } else {
+        dispatch({
+          type: "SET_ERROR",
+          payload: `Failed to open ZIP file: ${err}`,
+        });
+      }
+    },
+    [dispatch],
+  );
+
+  const updateRecentFiles = useCallback(
+    (filePath: string) => {
+      dispatch({
+        type: "SET_RECENT_FILES",
+        payload: [
+          filePath,
+          ...state.recentFiles
+            .filter((file: string) => file !== filePath)
+            .slice(0, 4),
+        ],
+      });
+    },
+    [dispatch, state.recentFiles],
+  );
+
+  return { chooseFile, openZipFile, handleErrors, updateRecentFiles };
+};
+
 const Home: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  const chooseFile = async () => {
-    const selected = await open({
-      filters: [{ name: "ZIP Files", extensions: ["zip"] }],
-    });
-    if (selected) {
-      openZipFile(selected as string);
-    }
-  };
-
-  const handleErrors = (err: any) => {
-    if (err.includes("Password required")) {
-      dispatch({ type: "SET_REQUIRES_PASSWORD", payload: true });
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Password is required to open this ZIP file.",
-      });
-    } else if (err.includes("Invalid password")) {
-      dispatch({
-        type: "SET_ERROR",
-        payload: "The password you entered is incorrect.",
-      });
-    } else {
-      dispatch({
-        type: "SET_ERROR",
-        payload: `Failed to open ZIP file: ${err}`,
-      });
-    }
-  };
-
-  const updateRecentFiles = (filePath: string) => {
-    dispatch({
-      type: "SET_RECENT_FILES",
-      payload: [
-        filePath,
-        ...state.recentFiles.filter((file) => file !== filePath).slice(0, 4),
-      ],
-    });
-  };
-
-  const openZipFile = async (
-    filePath: string,
-    password: string | null = null,
-  ) => {
-    if (!filePath) {
-      dispatch({ type: "SET_ERROR", payload: "File path is invalid." });
-      return;
-    }
-
-    try {
-      updateRecentFiles(filePath);
-      dispatch({ type: "SET_ZIP_FILE", payload: filePath });
-
-      const fileData = await invoke<FileData>("open_zip_file", {
-        path: filePath,
-        password,
-      });
-
-      dispatch({ type: "SET_FILE_TREE", payload: fileData.tree });
-      dispatch({ type: "SET_METADATA", payload: fileData.metadata });
-      dispatch({ type: "SET_ERROR", payload: null });
-      dispatch({ type: "SET_REQUIRES_PASSWORD", payload: false });
-    } catch (err: any) {
-      handleErrors(err);
-    }
-  };
+  const { chooseFile, openZipFile } = useFileHandler(state, dispatch);
 
   const handleSetPassword = (password: string) => {
     if (state.zipFile) {
@@ -165,7 +169,10 @@ const Home: React.FC = () => {
           {state.zipFile && state.metadata && (
             <>
               <MetadataDisplay metadata={state.metadata} />
-              <FileTree fileTree={state.fileTree} />
+              <FileTree
+                fileTree={state.metadata.tree}
+                fileMetadata={state.metadata.file_metadata}
+              />
             </>
           )}
         </div>

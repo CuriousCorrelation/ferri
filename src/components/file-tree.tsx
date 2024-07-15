@@ -8,12 +8,18 @@ import {
 } from "./ui/accordion";
 import { isEmpty } from "@/lib/utils";
 import { FileIcon, StackIcon } from "@radix-ui/react-icons";
+import { ZipFileMetadata } from "@/types";
 
 interface FileTreeProps {
   fileTree: Record<string, any> | null;
+  fileMetadata: ZipFileMetadata[];
 }
 
-const FileTree: React.FC<FileTreeProps> = ({ fileTree }) => {
+const FileTree: React.FC<FileTreeProps> = ({ fileTree, fileMetadata }) => {
+  const getFileMetadata = (fileName: string): ZipFileMetadata | undefined => {
+    return fileMetadata.find((file) => file.name === fileName);
+  };
+
   const renderTree = (node: Record<string, any>, depth = 0, margin = 0) => {
     const keys = Object.keys(node);
 
@@ -22,11 +28,20 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree }) => {
         {keys.map((key, index) => {
           const obj = node[key];
           const accordionItemValue = `item-${depth}-${index}`;
+          const metadata = getFileMetadata(key);
 
           return isEmpty(obj) ? (
-            <li key={key} className="flex font-bold">
-              <FileIcon className="h-4 w-4 mr-2 shrink-0" />
-              {key}
+            <li key={key} className="flex font-bold justify-between">
+              <div className="flex items-center">
+                <FileIcon className="h-4 w-4 mr-2 shrink-0" />
+                {key}
+              </div>
+              {metadata && (
+                <div className="flex text-xs font-thin gap-2">
+                  <p>Size: {metadata.size}</p>
+                  <p>Compressed: {metadata.compressed_size}</p>
+                </div>
+              )}
             </li>
           ) : (
             <li key={key} className="flex">
