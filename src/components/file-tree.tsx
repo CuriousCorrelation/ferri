@@ -8,10 +8,10 @@ import {
 } from "./ui/accordion";
 import { isEmpty } from "@/lib/utils";
 import { ArrowRightIcon, FileIcon, StackIcon } from "@radix-ui/react-icons";
-import { ZipFileMetadata } from "@/types";
+import { FileTreeNode, ZipFileMetadata } from "@/types";
 
 interface FileTreeProps {
-  fileTree: Record<string, any> | null;
+  fileTree: FileTreeNode | null;
   fileMetadata: ZipFileMetadata[];
 }
 
@@ -20,14 +20,16 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree, fileMetadata }) => {
     return fileMetadata.find((file) => file.name === fileName);
   };
 
-  const renderTree = (node: Record<string, any>, depth = 0, margin = 0) => {
+  const renderTree = (node: FileTreeNode | null, depth = 0, margin = 0) => {
+    if (!node) return null;
+
     const keys = Object.keys(node);
 
     return (
       <ul className="list-none font-mono" style={{ marginLeft: margin }}>
         {keys.map((key, index) => {
           const obj = node[key];
-          const accordionItemValue = `item-${depth}-${index}`;
+          const accordionItemValue = `item-${depth.toString()}-${index.toString()}`;
           const metadata = getFileMetadata(key);
 
           return isEmpty(obj) ? (
@@ -52,7 +54,11 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree, fileMetadata }) => {
                   <AccordionTrigger className="ml-2">{key}</AccordionTrigger>
                   <AccordionContent>
                     {typeof obj === "object"
-                      ? renderTree(obj, depth + 1, margin + key.length)
+                      ? renderTree(
+                          obj as FileTreeNode,
+                          depth + 1,
+                          margin + key.length,
+                        )
                       : null}
                   </AccordionContent>
                 </AccordionItem>
