@@ -8,6 +8,33 @@ use crate::{
     model::{ZipArchiveMetadata, ZipFileMetadata},
 };
 
+/// Reads metadata from a ZIP file.
+///
+/// This function extracts metadata from a ZIP file located at the specified path. It can handle
+/// password-protected ZIP files if a password is provided. The metadata includes the total number
+/// of files, uncompressed and compressed sizes, and a hierarchical representation of the directory
+/// structure.
+///
+/// # Arguments
+///
+/// * `path` - A string slice that holds the path to the ZIP file.
+/// * `password` - An optional string slice holding the password for encrypted ZIP files.
+///
+/// # Returns
+///
+/// A `FerriResult` containing `ZipArchiveMetadata` if successful, otherwise a `FerriError`.
+///
+/// # Errors
+///
+/// This function will return an error if the file cannot be opened, the ZIP archive is invalid,
+/// or if any file within the archive cannot be read.
+///
+/// # Example
+///
+/// ```
+/// let metadata = read_zip_file_metadata("path/to/archive.zip", Some("password"))?;
+/// println!("{:?}", metadata);
+/// ```
 #[tauri::command]
 pub(crate) fn read_zip_file_metadata(
     path: &str,
