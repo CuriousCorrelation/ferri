@@ -67,7 +67,6 @@ const Home: React.FC = () => {
     });
   };
 
-
   return (
     <Card className="w-full h-full">
       <CardHeader>
