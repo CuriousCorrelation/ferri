@@ -1,9 +1,13 @@
+export interface FileTreeNode {
+  [key: string]: FileTreeNode | Record<string, never>;
+}
+
 export interface ZipArchiveMetadata {
   name: string;
   archive_size: number;
   archive_compressed_size: number;
   file_metadata: ZipFileMetadata[];
-  tree: JSON;
+  tree: FileTreeNode;
 }
 
 export interface ZipFileMetadata {

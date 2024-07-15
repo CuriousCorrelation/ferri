@@ -53,7 +53,7 @@ Ferri's development environment is powered by [devenv](https://devenv.sh/) and [
 
 ### Getting Started
 
-1. **Activate Developer Environment**: 
+1. **Activate Developer Environment**:
    ```sh
    devenv shell
    ```
