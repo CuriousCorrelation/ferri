@@ -56,10 +56,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": true,
-        "title": "Tauri NextJS App",
-        "width": 1280,
-        "height": 800
+        "resizable": false,
+        "title": "Zip File Previwer",
+        "width": 400,
+        "height": 600
       }
     ]
   }

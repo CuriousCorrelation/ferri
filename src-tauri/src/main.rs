@@ -9,8 +9,6 @@ pub(crate) mod model;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use tauri::Manager;
-
 #[tauri::command]
 fn on_button_clicked() -> String {
     let start = SystemTime::now();
@@ -23,15 +21,6 @@ fn on_button_clicked() -> String {
 
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_window("main").unwrap();
-                window.open_devtools();
-                window.close_devtools();
-            }
-            Ok(())
-        })
         .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             on_button_clicked,
