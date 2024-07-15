@@ -58,8 +58,8 @@
         "fullscreen": false,
         "resizable": false,
         "title": "Zip File Previwer",
-        "width": 400,
-        "height": 600
+        "width": 600,
+        "height": 1000
       }
     ]
   }

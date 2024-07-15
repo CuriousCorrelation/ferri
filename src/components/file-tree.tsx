@@ -65,7 +65,7 @@ const FileTree: React.FC<FileTreeProps> = ({ fileTree, fileMetadata }) => {
   };
 
   return (
-    <ScrollArea>
+    <ScrollArea className="w-[555px] h-[670px]">
       {fileTree ? renderTree(fileTree) : <p>Directory is empty.</p>}
       <ScrollBar orientation="horizontal" />
       <ScrollBar orientation="vertical" />
