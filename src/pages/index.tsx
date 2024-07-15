@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import FileTree from "@/components/file-tree";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import ErrorMessage from "@/components/error-message";
 import { ArchiveIcon } from "@radix-ui/react-icons";
 import { useFileHandler } from "@/hooks/file-handler";
 import { AppAction, AppState } from "@/types";
+import { readRecentFiles } from "@/lib/interop";
+
 
 const initialAppState: AppState = {
   requiresPassword: false,
@@ -37,7 +39,20 @@ const reducer = (appState: AppState, appAction: AppAction): AppState => {
 
 const Home: React.FC = () => {
   const [appState, dispatch] = useReducer(reducer, initialAppState);
-  const { chooseFile, openZipFile } = useFileHandler(appState, dispatch);
+  const { chooseFile, openZipFile } = useFileHandler(dispatch);
+
+    useEffect(() => {
+    async function fetchRecentFiles() {
+      try {
+        const files = await readRecentFiles() ?? [];
+        dispatch({ type: "SET_RECENT_FILES", payload: files });
+      } catch (error) {
+        dispatch({ type: "SET_RECENT_FILES", payload: [] });
+      }
+    }
+
+    fetchRecentFiles();
+  }, []); // Empty dependency, run once
 
   const handleSetPassword = (password: string) => {
     if (appState.zipFile) {

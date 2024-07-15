@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { open } from "@tauri-apps/api/dialog";
-import { AppAction, AppState } from "@/types";
+import { AppAction } from "@/types";
 import {
   readRecentFiles,
   readZipFileMetadata,
@@ -8,7 +8,6 @@ import {
 } from "@/lib/interop";
 
 export const useFileHandler = (
-  appState: AppState,
   dispatch: React.Dispatch<AppAction>,
 ) => {
   const chooseFile = useCallback(async () => {
@@ -29,7 +28,6 @@ export const useFileHandler = (
 
   const openZipFile = useCallback(
     async (filePath: string, password: string | null = null) => {
-
       if (!filePath) {
         dispatch({ type: "SET_ERROR", payload: "File path is invalid." });
         return;
@@ -74,17 +72,21 @@ export const useFileHandler = (
 
   const updateRecentFiles = useCallback(
     async (filePath: string) => {
-      const newRecentFiles = [...appState.recentFiles, filePath];
+      const recentFiles = (await readRecentFiles()) ?? [];
+
+      const newRecentFiles = [
+        ...recentFiles.filter((file: string) => file !== filePath).slice(0, 4),
+        filePath,
+      ];
 
       await storeRecentFiles(newRecentFiles);
-      const recentFiles = await readRecentFiles();
 
       dispatch({
         type: "SET_RECENT_FILES",
-        payload: recentFiles ?? [],
+        payload: newRecentFiles ?? [],
       });
     },
-    [dispatch, appState.recentFiles],
+    [dispatch],
   );
 
   return { chooseFile, openZipFile };
