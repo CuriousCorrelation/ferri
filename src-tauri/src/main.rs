@@ -32,6 +32,7 @@ fn main() {
             }
             Ok(())
         })
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             on_button_clicked,
             interop::read_zip_file_metadata

@@ -12,7 +12,7 @@ const RecentFiles: React.FC<RecentFilesProps> = ({
   <div>
     <span className="text-sm">Recent files</span>
     <ul className="list-disc pl-4">
-      {recentFiles.slice(0, 5).map((file, index) => (
+      {recentFiles.map((file, index) => (
         <li key={index}>
           <Button
             variant="link"

@@ -55,6 +55,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.4)
+      tauri-plugin-store-api:
+        specifier: github:tauri-apps/tauri-plugin-store#v1
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/5f5404feea43b6cddd65e4171f52e92ca161a2aa
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -810,6 +813,13 @@ packages:
     resolution:
       {
         integrity: sha512-LH5ToovAHnDVe5Qa9f/+jW28I6DeMhos8bNDtBOmmnaDpPmJmYLyHdeDblAWWWYc7KKRDg9/66vMuKyq0WIeFA==,
+      }
+    engines: { node: ">= 14.6.0", npm: ">= 6.6.0", yarn: ">= 1.19.1" }
+
+  "@tauri-apps/api@1.6.0":
+    resolution:
+      {
+        integrity: sha512-rqI++FWClU5I2UBp4HXFvl+sBWkdigBkxnpJDQUWttNyG7IZP4FwQGhTNL5EOw0vI8i6eSAJ5frLqO7n7jbJdg==,
       }
     engines: { node: ">= 14.6.0", npm: ">= 6.6.0", yarn: ">= 1.19.1" }
 
@@ -4183,6 +4193,13 @@ packages:
       }
     engines: { node: ">=6" }
 
+  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/5f5404feea43b6cddd65e4171f52e92ca161a2aa:
+    resolution:
+      {
+        tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/5f5404feea43b6cddd65e4171f52e92ca161a2aa,
+      }
+    version: 0.0.0
+
   text-table@0.2.0:
     resolution:
       {
@@ -4795,6 +4812,8 @@ snapshots:
       tslib: 2.6.3
 
   "@tauri-apps/api@1.5.6": {}
+
+  "@tauri-apps/api@1.6.0": {}
 
   "@tauri-apps/cli-darwin-arm64@1.5.14":
     optional: true
@@ -7020,6 +7039,10 @@ snapshots:
       - ts-node
 
   tapable@2.2.1: {}
+
+  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/5f5404feea43b6cddd65e4171f52e92ca161a2aa:
+    dependencies:
+      "@tauri-apps/api": 1.6.0
 
   text-table@0.2.0: {}
 

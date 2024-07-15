@@ -1,7 +1,11 @@
 import React, { useCallback } from "react";
 import { open } from "@tauri-apps/api/dialog";
 import { AppAction, AppState } from "@/types";
-import { readZipFileMetadata } from "@/lib/interop";
+import {
+  readRecentFiles,
+  readZipFileMetadata,
+  storeRecentFiles,
+} from "@/lib/interop";
 
 export const useFileHandler = (
   appState: AppState,
@@ -12,6 +16,9 @@ export const useFileHandler = (
       const selected = await open({
         filters: [{ name: "ZIP Files", extensions: ["zip"] }],
       });
+
+      updateRecentFiles(selected as string);
+
       if (selected) {
         openZipFile(selected as string);
       }
@@ -22,6 +29,7 @@ export const useFileHandler = (
 
   const openZipFile = useCallback(
     async (filePath: string, password: string | null = null) => {
+
       if (!filePath) {
         dispatch({ type: "SET_ERROR", payload: "File path is invalid." });
         return;
@@ -34,8 +42,6 @@ export const useFileHandler = (
         dispatch({ type: "SET_METADATA", payload: metadata });
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_REQUIRES_PASSWORD", payload: false });
-
-        updateRecentFiles(filePath);
       } catch (err: any) {
         handleErrors(err);
       }
@@ -67,19 +73,19 @@ export const useFileHandler = (
   );
 
   const updateRecentFiles = useCallback(
-    (filePath: string) => {
+    async (filePath: string) => {
+      const newRecentFiles = [...appState.recentFiles, filePath];
+
+      await storeRecentFiles(newRecentFiles);
+      const recentFiles = await readRecentFiles();
+
       dispatch({
         type: "SET_RECENT_FILES",
-        payload: [
-          filePath,
-          ...appState.recentFiles
-            .filter((file: string) => file !== filePath)
-            .slice(0, 4),
-        ],
+        payload: recentFiles ?? [],
       });
     },
     [dispatch, appState.recentFiles],
   );
 
-  return { chooseFile, openZipFile, handleErrors, updateRecentFiles };
+  return { chooseFile, openZipFile };
 };
