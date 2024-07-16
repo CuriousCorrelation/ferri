@@ -40,7 +40,7 @@ export function PasswordPrompt({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit(e);
+          handleSubmit(e).catch((e: unknown) => { console.error(e) });
         }}
         className="w-2/3 space-y-6"
       >
