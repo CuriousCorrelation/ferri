@@ -39,6 +39,14 @@ An expanded view of the zip file contents.
     <img src="screenshots/ferri-file-explore.png" alt="File Explorer" width="50%">
 </div>
 
+### Password prompt
+
+Password prompt to decrypt protected zip files.
+
+<div align="center">
+    <img src="screenshots/ferri-password-protected.png" alt="File Explorer" width="50%">
+</div>
+
 ### Large File Explorer
 
 Handling highly nested files using a scrollable area.
