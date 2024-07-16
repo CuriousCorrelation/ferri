@@ -27,11 +27,20 @@ export function PasswordPrompt({
     await onSetPassword(data.password);
   };
 
+  const handleSubmit = form.handleSubmit(async (data) => {
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
   return (
     <Form {...form}>
       <form
-        onSubmit={() => {
-          form.handleSubmit(onSubmit);
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(e);
         }}
         className="w-2/3 space-y-6"
       >
